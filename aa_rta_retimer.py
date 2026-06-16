@@ -43,6 +43,7 @@ if __name__ == "__main__":
         if not line:
             break
         j: dict = json.loads(line)
+        # Example: {"time":1781562444029,"type":"advancement","data":{"player":{"name":"Jaykeycakey01","uuid":"0d871103-7f2b-4ead-bbd0-f084de514c62"},"id":"minecraft:story/mine_stone","criterion_name":"get_stone","completed":true,"display":{"hidden":false,"announce_to_chat":true,"show_toast":true}},"speedrunigt":{"rta":38178,"igt":38178,"retime":38178}}
 
         if start_time == -1 and j['type'] == 'game_info' and len(j['data']['players']) > 0:
             start_time = j['time']
@@ -51,10 +52,11 @@ if __name__ == "__main__":
             if aid in advancements:
                 continue
             advancements.add(aid)
+            player = j['data']['player']['name']
             if start_time == -1:
                 print(
-                    f"Advancement #{len(advancements)} {aid} completed before time started")
+                    f"Advancement #{len(advancements)} {aid} completed before time started by {player}")
             else:
                 total_time = j['time'] - start_time
                 print(
-                    f"Advancement #{len(advancements)} {aid} completed at {format_time(total_time)}")
+                    f"Advancement #{len(advancements)} {aid} completed at {format_time(total_time)} by {player}")

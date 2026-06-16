@@ -80,11 +80,12 @@
                         if (advancements.has(aid)) continue;
 
                         advancements.add(aid);
+                        const player = j.data.player.name;
                         if (startTime === -1) {
-                            result += `Advancement #${advancements.size} ${aid} completed before time started\n`;
+                            result += `Advancement #${advancements.size} ${aid} completed before time started by ${player}\n`;
                         } else {
                             const totalTime = j.time - startTime;
-                            result += `Advancement #${advancements.size} ${aid} completed at ${formatTime(totalTime)}\n`;
+                            result += `Advancement #${advancements.size} ${aid} completed at ${formatTime(totalTime)} by ${player}\n`;
                         }
                     }
                 }
