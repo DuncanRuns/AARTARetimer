@@ -42,6 +42,8 @@ if __name__ == "__main__":
     leave_game_timestamp = -1
     leave_game_time = -1
 
+    players = set()
+
     while 1:
         line = next(r, None)
         if not line:
@@ -49,6 +51,7 @@ if __name__ == "__main__":
         j: dict = json.loads(line)
 
         if j['type'] == 'game_info' and 'players' in j['data'] and len(j['data']['players']) > 0:
+            players = players.union([i['name'] for i in j['data']['players']])
             if start_time == -1:
                 start_time = j['time']
             if leave_game_timestamp != -1:
@@ -74,3 +77,4 @@ if __name__ == "__main__":
                 total_time = j['time'] - start_time - segment_time
                 print(
                     f"Advancement #{len(advancements)} {aid} completed at {format_time(total_time)} by {player}")
+    print("All Players: " + ", ".join(players))

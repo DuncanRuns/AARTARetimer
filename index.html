@@ -72,12 +72,17 @@
                 let leaveGameTimestamp = -1;
                 let leaveGameTime = -1;
 
+                const players = new Set();
+
                 for (const line of lines) {
                     if (!line.trim()) continue;
 
                     const j = JSON.parse(line);
 
                     if (j.type === 'game_info' && j.data.players && j.data.players.length > 0) {
+                        for (const p of j.data.players) {
+                            players.add(p.name);
+                        }
                         if (startTime === -1) {
                             startTime = j.time;
                         }
@@ -107,7 +112,9 @@
                     }
                 }
 
-                output.textContent = result || 'No advancements found';
+                result += `All Players: ${Array.from(players).join(', ')}\n`;
+
+                output.textContent = result;
             };
 
             reader.readAsText(file);
