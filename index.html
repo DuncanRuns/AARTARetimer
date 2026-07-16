@@ -68,13 +68,30 @@
                 let startTime = -1;
                 let result = '';
 
+                let segmentTime = 0;
+                let leaveGameTimestamp = -1;
+                let leaveGameTime = -1;
+
                 for (const line of lines) {
                     if (!line.trim()) continue;
 
                     const j = JSON.parse(line);
 
-                    if (startTime === -1 && j.type === 'game_info' && j.data.players.length > 0) {
-                        startTime = j.time;
+                    if (j.type === 'game_info' && j.data.players && j.data.players.length > 0) {
+                        if (startTime === -1) {
+                            startTime = j.time;
+                        }
+                        if (leaveGameTimestamp !== -1) {
+                            const timeGone = j.time - leaveGameTimestamp;
+                            if (timeGone >= 60_000) {
+                                result += `Segmented at ${formatTime(leaveGameTime)} for ${formatTime(timeGone)}\n`;
+                                segmentTime += timeGone;
+                                leaveGameTimestamp = -1;
+                            }
+                        }
+                    } else if (j.type === 'server_shutdown' && leaveGameTimestamp === -1) {
+                        leaveGameTimestamp = j.time;
+                        leaveGameTime = j.time - startTime - segmentTime;
                     } else if (j.type === 'advancement' && j.data.completed && j.data.display) {
                         const aid = j.data.id;
                         if (advancements.has(aid)) continue;
@@ -84,7 +101,7 @@
                         if (startTime === -1) {
                             result += `Advancement #${advancements.size} ${aid} completed before time started by ${player}\n`;
                         } else {
-                            const totalTime = j.time - startTime;
+                            const totalTime = j.time - startTime - segmentTime;
                             result += `Advancement #${advancements.size} ${aid} completed at ${formatTime(totalTime)} by ${player}\n`;
                         }
                     }

@@ -38,6 +38,10 @@ if __name__ == "__main__":
     advancements = set()
     start_time = -1
 
+    segment_time = 0
+    leave_game_timestamp = -1
+    leave_game_time = -1
+
     while 1:
         line = next(r, None)
         if not line:
@@ -45,8 +49,19 @@ if __name__ == "__main__":
         j: dict = json.loads(line)
         # Example: {"time":1781562444029,"type":"advancement","data":{"player":{"name":"Jaykeycakey01","uuid":"0d871103-7f2b-4ead-bbd0-f084de514c62"},"id":"minecraft:story/mine_stone","criterion_name":"get_stone","completed":true,"display":{"hidden":false,"announce_to_chat":true,"show_toast":true}},"speedrunigt":{"rta":38178,"igt":38178,"retime":38178}}
 
-        if start_time == -1 and j['type'] == 'game_info' and len(j['data']['players']) > 0:
-            start_time = j['time']
+        if j['type'] == 'game_info' and 'players' in j['data'] and len(j['data']['players']) > 0:
+            if start_time == -1:
+                start_time = j['time']
+            if leave_game_timestamp != -1:
+                time_gone = j['time'] - leave_game_timestamp
+                if time_gone >= 60_000:
+                    print(
+                        f"Segmented at {format_time(leave_game_time)} for {format_time(time_gone)}")
+                    segment_time += time_gone
+                    leave_game_timestamp = -1
+        elif j['type'] == 'server_shutdown' and leave_game_timestamp == -1:
+            leave_game_timestamp = j['time']
+            leave_game_time = j['time'] - start_time - segment_time
         elif j['type'] == 'advancement' and j['data']['completed'] and j['data']['display']:
             aid = j['data']['id']
             if aid in advancements:
@@ -57,6 +72,6 @@ if __name__ == "__main__":
                 print(
                     f"Advancement #{len(advancements)} {aid} completed before time started by {player}")
             else:
-                total_time = j['time'] - start_time
+                total_time = j['time'] - start_time - segment_time
                 print(
                     f"Advancement #{len(advancements)} {aid} completed at {format_time(total_time)} by {player}")
