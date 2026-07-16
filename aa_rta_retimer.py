@@ -47,7 +47,6 @@ if __name__ == "__main__":
         if not line:
             break
         j: dict = json.loads(line)
-        # Example: {"time":1781562444029,"type":"advancement","data":{"player":{"name":"Jaykeycakey01","uuid":"0d871103-7f2b-4ead-bbd0-f084de514c62"},"id":"minecraft:story/mine_stone","criterion_name":"get_stone","completed":true,"display":{"hidden":false,"announce_to_chat":true,"show_toast":true}},"speedrunigt":{"rta":38178,"igt":38178,"retime":38178}}
 
         if j['type'] == 'game_info' and 'players' in j['data'] and len(j['data']['players']) > 0:
             if start_time == -1:
